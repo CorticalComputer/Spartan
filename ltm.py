@@ -317,8 +317,11 @@ def _parse_existing_soul_file(filepath):
         chunk = chunk.strip()
         if not chunk:
             continue
-        # Re-add the --- prefix for the parser
-        parsed = _parse_staged_content("---\n" + chunk + "\n", filepath)
+        # The first chunk may already start with a YAML frontmatter delimiter.
+        # Only subsequent chunks lose that delimiter during the split.
+        if not chunk.startswith("---\n"):
+            chunk = "---\n" + chunk
+        parsed = _parse_staged_content(chunk + "\n", filepath)
         if parsed["body"] and len(parsed["body"]) > 20 and (parsed["entry_id"] or parsed["title"]):
             entries.append(parsed)
 
